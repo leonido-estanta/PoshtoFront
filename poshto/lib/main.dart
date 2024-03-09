@@ -5,6 +5,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:provider/provider.dart';
+import 'services/voice_channel_service.dart';
 
 
 void main() {
@@ -16,15 +18,20 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: const Scaffold(
-        body: Center(
-          child: MainContent(),
+    return MultiProvider(
+      providers: [
+        Provider<VoiceChannelService>(create: (_) => VoiceChannelService())
+      ],
+      child: MaterialApp(
+        home: const Scaffold(
+          body: Center(
+            child: MainContent(),
+          ),
         ),
+        routes: {
+          '/messenger': (context) => const MessengerPage(),
+        },
       ),
-      routes: {
-        '/messenger': (context) => MessengerPage(),
-      },
     );
   }
 }
@@ -45,15 +52,17 @@ class _MainContentState extends State<MainContent> {
     return fieldsEnabled[index];
   }
 
-  Future loginRequest(String seed) async {
-    final response = await http.post(Uri.parse('https://localhost:7219/Auth/Login?seedPhrase=$seed'));
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      await storage.write(key: 'authToken', value: data['token']);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: ${response.body}')));
-    }
+  Future<void> loginRequest(String seed) async {
+  final response = await http.post(Uri.parse('https://localhost:7219/Auth/Login?seedPhrase=$seed'));
+  if (response.statusCode == 200) {
+    final data = json.decode(response.body);
+    await storage.write(key: 'authToken', value: data['token']);
+    await storage.write(key: 'userId', value: data['user']['id'].toString());
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: ${response.body}')));
   }
+}
+
 
   Future registerRequest(String seed) async {
     final response = await http.post(Uri.parse('https://localhost:7219/Auth/Register?seedPhrase=$seed'));

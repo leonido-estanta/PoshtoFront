@@ -16,7 +16,6 @@ class _ChatInputState extends State<ChatInput> {
     if (_controller.text.isNotEmpty) {
       await _chatService.sendMessage(_controller.text);
       _controller.clear();
-      // Optionally, trigger a callback to parent widget to refresh messages list
     }
   }
 

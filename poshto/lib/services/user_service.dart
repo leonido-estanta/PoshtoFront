@@ -8,10 +8,12 @@ class UserService {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   Future<List<UserModel>> getUsers() async {
+    String? authToken = await _storage.read(key: 'authToken');
     var response = await http.get(
       Uri.parse('$_baseUrl/User/List'),
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $authToken',
       },
     );
     if (response.statusCode == 200) {

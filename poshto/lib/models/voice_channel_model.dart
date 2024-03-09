@@ -1,11 +1,17 @@
 class VoiceChannelModel {
-  final String id;
+  final int id;
   final String name;
-  final List<String> userIds; // IDs of users in this channel
+  List<int> connectedUsers = [];
 
   VoiceChannelModel({
     required this.id,
     required this.name,
-    required this.userIds,
   });
+
+  factory VoiceChannelModel.fromJson(Map<String, dynamic> json) {
+    return VoiceChannelModel(
+      id: json['id'],
+      name: json['name'],
+    );
+  }
 }

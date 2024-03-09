@@ -1,4 +1,3 @@
-// file6: control_panel.dart
 import 'package:flutter/material.dart';
 
 class ControlPanel extends StatelessWidget {
