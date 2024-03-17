@@ -1,26 +1,90 @@
 import 'package:flutter/material.dart';
-import 'package:poshto/pages/messanger_page.dart';
+import 'package:poshto/models/user_model.dart';
+import 'package:poshto/models/voice_channel_model.dart';
+import 'package:poshto/notifiers/voice_channel_notifier.dart';
+import 'package:poshto/pages/call_page.dart';
+import 'package:poshto/pages/messenger_page.dart';
 import 'package:poshto/services/animated_border_highlight_container.dart';
 import 'dart:async';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:poshto/services/auth_service.dart';
+import 'package:poshto/services/user_service.dart';
 import 'package:provider/provider.dart';
+import 'package:signalr_netcore/hub_connection.dart';
+import 'package:signalr_netcore/hub_connection_builder.dart';
 import 'services/voice_channel_service.dart';
-
+import 'package:rxdart/rxdart.dart';
 
 void main() {
   runApp(const MainApp());
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends StatefulWidget {
   const MainApp({super.key});
+
+  @override
+  _MainAppState createState() => _MainAppState();
+}
+
+class ChatHubConnection {
+  final HubConnection connection;
+
+  ChatHubConnection(this.connection);
+}
+
+class VoiceHubConnection {
+  final HubConnection connection;
+
+  VoiceHubConnection(this.connection);
+}
+
+
+class _MainAppState extends State<MainApp> {
+  late HubConnection chatConnection = HubConnectionBuilder().withUrl('https://localhost:7219/chatHub').build();
+  late HubConnection voiceConnection = HubConnectionBuilder().withUrl('https://localhost:7219/voiceHub').build();
+
+  late ChatHubConnection chatHubConnection = ChatHubConnection(chatConnection);
+  late VoiceHubConnection voiceHubConnection = VoiceHubConnection(voiceConnection);
+
+  late UserService userService;
+  late VoiceChannelService voiceChannelService;
+  final BehaviorSubject<List<VoiceChannelModel>> _channelStreamController = BehaviorSubject();
+  final BehaviorSubject<List<UserModel>> _userStreamController = BehaviorSubject();
+
+  @override
+  void initState() {
+    super.initState();
+    userService = UserService();
+    voiceChannelService = VoiceChannelService();
+
+    initHubConnection();
+    initChannelsAndUsers();
+  }
+
+  Future<void> initHubConnection() async {
+    await chatHubConnection.connection.start();
+    await voiceHubConnection.connection.start();
+  }
+
+  void initChannelsAndUsers() async {
+    var channels = await voiceChannelService.getChannels();
+    var usersList = await userService.getUsers();
+    _channelStreamController.add(channels);
+    _userStreamController.add(usersList);
+  }
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider<VoiceChannelService>(create: (_) => VoiceChannelService())
+        Provider<VoiceChannelService>(create: (_) => voiceChannelService),
+        Provider<AuthService>(create: (_) => AuthService()),
+        Provider<UserService>(create: (_) => userService),
+        StreamProvider<List<VoiceChannelModel>>(create: (_) => _channelStreamController.stream, initialData: const []),
+        StreamProvider<List<UserModel>>(create: (_) => _userStreamController.stream, initialData: const []),
+        Provider<ChatHubConnection>(create: (_) => chatHubConnection),
+        Provider<VoiceHubConnection>(create: (_) => voiceHubConnection),
+        ChangeNotifierProvider(create: (_) => VoiceChannelNotifier())
       ],
       child: MaterialApp(
         home: const Scaffold(
@@ -30,9 +94,19 @@ class MainApp extends StatelessWidget {
         ),
         routes: {
           '/messenger': (context) => const MessengerPage(),
+          '/call': (context) => const CallPage(),
         },
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    chatHubConnection.connection.stop();
+    voiceHubConnection.connection.stop();
+    _channelStreamController.close();
+    _userStreamController.close();
+    super.dispose();
   }
 }
 
@@ -44,59 +118,51 @@ class MainContent extends StatefulWidget {
 }
 
 class _MainContentState extends State<MainContent> {
+  late final Stream<List<VoiceChannelModel>> voiceChannelStream;
+  late final Stream<List<UserModel>> userStream;
   final storage = const FlutterSecureStorage();
   bool isSwapped = false;
   List<bool> fieldsEnabled = List.filled(8, true);
+  late final List<VoiceChannelModel> voiceChannels;
+  late final List<UserModel> users;
+
+  @override
+  void initState() {
+    super.initState();
+    voiceChannels = Provider.of<List<VoiceChannelModel>>(context, listen: false);
+    users = Provider.of<List<UserModel>>(context, listen: false);
+  }
 
   bool isFieldEnabled(int index) {
     return fieldsEnabled[index];
   }
 
-  Future<void> loginRequest(String seed) async {
-  final response = await http.post(Uri.parse('https://localhost:7219/Auth/Login?seedPhrase=$seed'));
-  if (response.statusCode == 200) {
-    final data = json.decode(response.body);
-    await storage.write(key: 'authToken', value: data['token']);
-    await storage.write(key: 'userId', value: data['user']['id'].toString());
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: ${response.body}')));
-  }
-}
+  Future<void> handleRegister() async {
+    final authService = Provider.of<AuthService>(context, listen: false);
 
-
-  Future registerRequest(String seed) async {
-    final response = await http.post(Uri.parse('https://localhost:7219/Auth/Register?seedPhrase=$seed'));
-    if (response.statusCode != 200) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: ${response.body}')));
-    }
-  }
-
-  void handleRegister() async {
     if (!isSwapped) {
       setState(() {
         isSwapped = true;
       });
-      final response = await http.get(Uri.parse('https://localhost:7219/Generator/Generate'));
-      if (response.statusCode == 200) {
-        List<String> phrases = List<String>.from(response.body.split(' '));
+      List<String>? phrases = await authService.generateSeed(context);
+      if (phrases != null) {
         for (var i = 0; i < phrases.length; i++) {
           AnimatedBorderHighlightContainerState.controllers[i].text = phrases[i];
           fieldsEnabled[i] = false;
         }
-      } else {
-        ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Error fetching phrases')));
       }
     } else {
       var seed = AnimatedBorderHighlightContainerState.controllers.map((e) => e.text).join(' ');
-      await registerRequest(seed);
-      await loginRequest(seed);
+      await authService.registerRequest(context, seed);
+      await authService.loginRequest(context, seed);
       Navigator.of(context).pushNamed('/messenger');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context, listen: false);
+
     return Stack(
       alignment: Alignment.center,
       children: [
@@ -135,7 +201,7 @@ class _MainContentState extends State<MainContent> {
                   });
                 } else {
                   var seed = AnimatedBorderHighlightContainerState.controllers.map((e) => e.text).join(' ');
-                  await loginRequest(seed);
+                  await authService.loginRequest(context, seed);
                   Navigator.of(context).pushNamed('/messenger');
                 }
               },

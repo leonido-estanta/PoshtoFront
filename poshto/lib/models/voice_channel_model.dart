@@ -14,4 +14,9 @@ class VoiceChannelModel {
       name: json['name'],
     );
   }
+
+  set value(VoiceChannelModel value) {
+    connectedUsers = value.connectedUsers;
+  }
+
 }
