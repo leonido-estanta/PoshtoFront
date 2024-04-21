@@ -1,0 +1,28 @@
+﻿.nav-panel {
+    background-color: rgba(0, 123, 255, 0.5);
+    width: 15%;
+    height: 90vh;
+    margin: 10px 10px 10px 25px;
+    border-radius: 8px;
+}
+
+.call-panel {
+    width: 62%;
+    height: 90vh;
+    margin: 10px;
+    border-radius: 8px;
+    border: 2px rgba(0, 123, 255, 0.5) solid;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.user-avatar {
+    display: inline-block;
+    margin: 5px;
+    width: 100px;
+}
+
+.user-avatar img {
+    border-radius: 50%;
+}

@@ -1,0 +1,8 @@
+﻿<nav class="navbar" style="background-color: rgba(0, 123, 255, 0.5);">
+    <div class="container-fluid">
+        <div class="d-flex">
+            <div (click)="navigate('messenger')" [class.active]="isActive('messenger')" class="p-2 m-1 bg-light rounded" role='button'>Messenger</div>
+            <div (click)="navigate('call')" [class.active]="isActive('call')" class="p-2 m-1 bg-light rounded" role='button'>Call</div>
+        </div>
+    </div>
+</nav>

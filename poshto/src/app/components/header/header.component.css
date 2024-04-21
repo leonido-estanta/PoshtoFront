@@ -1,0 +1,9 @@
+﻿.active {
+    background-color: rgba(0, 0, 255, 0.5) !important;
+}
+
+.navbar {
+    margin: 10px;
+    border-radius: 8px;
+    width: calc(80% - 20px);
+}

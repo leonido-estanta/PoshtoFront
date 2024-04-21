@@ -1,0 +1,15 @@
+﻿<app-header></app-header>
+<div class="row">
+    <div class="nav-panel"></div>
+    <div class="chat-panel">
+        <cdk-virtual-scroll-viewport itemSize="50" class="message-history" (scrolledIndexChange)="onScroll()">
+            <div *cdkVirtualFor="let message of messages; let i = index" [ngClass]="{'from-me': isFromMe(message), 'from-others': !isFromMe(message)}" class="message">
+                {{ message.text }}
+            </div>
+        </cdk-virtual-scroll-viewport>
+        <div class="message-input">
+            <input [(ngModel)]="inputMessage" type="text" class="form-control" placeholder="Type a message...">
+            <button type="button" class="btn btn-primary" (click)="sendMessage()">Send</button>
+        </div>
+    </div>
+</div>

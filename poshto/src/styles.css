@@ -1,0 +1,7 @@
+body {
+    overflow: hidden;
+}
+
+.cdk-virtual-scroll-orientation-vertical .cdk-virtual-scroll-content-wrapper {
+    padding-top: 110px;
+}
