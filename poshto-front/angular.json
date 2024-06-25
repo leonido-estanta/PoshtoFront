@@ -6,7 +6,7 @@
     "analytics": false
   },
   "projects": {
-    "poshto": {
+    "poshto-front": {
       "projectType": "application",
       "root": "",
       "sourceRoot": "src",
@@ -15,16 +15,14 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/poshto",
+            "outputPath": "dist/poshto-front",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
-            "assets": ["src/assets"],
-            "styles": [
-              "node_modules/bootstrap/dist/css/bootstrap.min.css",
-              "src/styles.css"
-            ]
+            "assets": ["src/assets"], 
+            "styles": ["src/styles.css",
+              "node_modules/bootstrap/dist/css/bootstrap.css"]
           },
           "configurations": {
             "production": {
@@ -57,10 +55,10 @@
           },
           "configurations": {
             "production": {
-              "buildTarget": "poshto:build:production"
+              "buildTarget": "poshto-front:build:production"
             },
             "development": {
-              "buildTarget": "poshto:build:development"
+              "buildTarget": "poshto-front:build:development"
             }
           },
           "defaultConfiguration": "development"

@@ -1,6 +1,7 @@
 ﻿export class UserModel {
-    id: number;
+    id: string;
     name: string;
+    connectionId: string;
     avatarUrl: string;
     isOnline: boolean;
 }

@@ -1,5 +1,5 @@
 [package]
-name = "poshto"
+name = "poshto-front"
 version = "0.0.0"
 description = "A Tauri App"
 authors = ["you"]

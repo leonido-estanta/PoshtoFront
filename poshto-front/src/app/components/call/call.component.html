@@ -1,0 +1,16 @@
+﻿<app-header></app-header>
+<div class="row">
+    <div class="nav-panel">
+        <div *ngFor="let room of rooms">
+            <p>{{ room.name }}</p>
+            <button (click)="connect(room)">Connect</button>
+            <button (click)="disconnect(room)">Disconnect</button>
+        </div>
+    </div>
+    <div class="call-panel">
+        <div *ngFor="let user of connectedRoom?.connectedUsers" class="user-avatar">
+            <img [ngSrc]="user.avatarUrl" [alt]="user.name" width="100" height="100">
+            <p style="text-align: center">{{ user.name }}</p>
+        </div>
+    </div>
+</div>

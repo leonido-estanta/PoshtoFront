@@ -1,6 +1,6 @@
 ﻿import {UserModel} from "./user.model";
 
-export class ChannelModel {
+export class RoomModel {
     id: number;
     name: string;
     
