@@ -11,7 +11,7 @@ export class UserService {
 
     }
 
-    private baseUrl = 'https://localhost:7219';
+    private baseUrl = 'http://localhost:5284';
 
     createAuthorizationHeader(headers: HttpHeaders) {
         return headers.append('Authorization', `Bearer ${this.cookieService.get('authToken')}`);

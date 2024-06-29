@@ -1,8 +1,8 @@
-﻿import {UserModel} from "./user.model";
+﻿import {User} from "./user";
 import {BehaviorSubject, Observable} from "rxjs";
 
 export class UserConnection {
-    user: UserModel;
+    user: User;
     isCurrentUser: boolean;
     rtcConnection: RTCPeerConnection;
     streamSub: BehaviorSubject<MediaStream>;
@@ -10,7 +10,7 @@ export class UserConnection {
     creatingOffer = false;
     creatingAnswer = false;
 
-    constructor(user: UserModel, isCurrentUser: boolean, rtcConnection: RTCPeerConnection) {
+    constructor(user: User, isCurrentUser: boolean, rtcConnection: RTCPeerConnection) {
         this.user = user;
         this.isCurrentUser = isCurrentUser;
         this.rtcConnection = rtcConnection;

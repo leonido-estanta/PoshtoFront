@@ -12,7 +12,7 @@ export class ChatService {
         
     }
     
-    private baseUrl = 'https://localhost:7219';
+    private baseUrl = 'http://localhost:5284';
     public hubConnection: HubConnection;
 
     getMessages(messagesCount, pageSize) {
@@ -28,7 +28,7 @@ export class ChatService {
 
     startConnection(): void {
         this.hubConnection = new HubConnectionBuilder()
-            .withUrl('https://localhost:7219/chatHub')
+            .withUrl('http://localhost:5284/chatHub')
             .build();
 
         this.hubConnection.start()
