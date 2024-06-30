@@ -9,6 +9,10 @@ export class UserConnection {
     streamObservable: Observable<MediaStream>;
     creatingOffer = false;
     creatingAnswer = false;
+    
+    micEnabled = true;
+    cameraEnabled = false;
+    screenShareEnabled = false;
 
     constructor(user: User, isCurrentUser: boolean, rtcConnection: RTCPeerConnection) {
         this.user = user;

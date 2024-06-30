@@ -1,71 +1,7 @@
 ﻿<section class="container">
-    <div class="list-item">
-        <div class="item-content">
-            <div class="call-header">
-                <h1 class="call-title">WebSim Team Call</h1>
-                <span class="call-timer">00:15:30</span>
-            </div>
-            <div class="call-content">
-                <ul class="members-list">
-                    <li class="member">
-                        <img src="https://icons.veryicon.com/png/o/miscellaneous/rookie-official-icon-gallery/225-default-avatar.png" alt="Alice Johnson" class="member-avatar">
-                        <div class="member-info">
-                            <div class="member-name">Alice Johnson</div>
-                            <div class="member-status">M • VOn</div>
-                        </div>
-                    </li>
-                    <li class="member">
-                        <img src="https://icons.veryicon.com/png/o/miscellaneous/rookie-official-icon-gallery/225-default-avatar.png" alt="Bob Smith" class="member-avatar">
-                        <div class="member-info">
-                            <div class="member-name">Bob Smith</div>
-                            <div class="member-status">S • VOn</div>
-                        </div>
-                    </li>
-                    <li class="member">
-                        <img src="https://icons.veryicon.com/png/o/miscellaneous/rookie-official-icon-gallery/225-default-avatar.png" alt="Carol White" class="member-avatar">
-                        <div class="member-info">
-                            <div class="member-name">Carol White</div>
-                            <div class="member-status">M • VOff</div>
-                        </div>
-                    </li>
-                    <li class="member">
-                        <img src="https://icons.veryicon.com/png/o/miscellaneous/rookie-official-icon-gallery/225-default-avatar.png" alt="David Brown" class="member-avatar">
-                        <div class="member-info">
-                            <div class="member-name">David Brown</div>
-                            <div class="member-status">S • SS</div>
-                        </div>
-                    </li>
-                </ul>
-                <div class="controls">
-                    <button class="control-button hang-up" title="Hang up">
-                        <svg viewBox="0 0 24 24" fill="white">
-                            <path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08a.956.956 0 0 1-.29-.7c0-.28.11-.53.29-.71C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67c.18.18.29.43.29.71 0 .28-.11.53-.29.71l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.11-.7-.28-.79-.73-1.68-1.36-2.66-1.85-.33-.16-.56-.5-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z"/>
-                        </svg>
-                    </button>
-                    <div class="control-label">Hang Up</div>
-                    <button class="control-button" title="Mute microphone">
-                        <svg viewBox="0 0 24 24" fill="#333">
-                            <path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>
-                        </svg>
-                    </button>
-                    <div class="control-label">Mute</div>
-                    <button class="control-button" title="Toggle video">
-                        <svg viewBox="0 0 24 24" fill="#333">
-                            <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
-                        </svg>
-                    </button>
-                    <div class="control-label">Video</div>
-                    <button class="control-button" title="Share screen">
-                        <svg viewBox="0 0 24 24" fill="#333">
-                            <path d="M20 18c1.1 0 1.99-.9 1.99-2L22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/>
-                        </svg>
-                    </button>
-                    <div class="control-label">Share Screen</div>
-                </div>
-            </div>
-        </div>
+    <div *ngIf="displayCallModal" class="list-item">
+        <app-modal-call></app-modal-call>
     </div>
-
     <div class="list-item">
         <div class="item-content">
             <span class="order">2</span> Bravo

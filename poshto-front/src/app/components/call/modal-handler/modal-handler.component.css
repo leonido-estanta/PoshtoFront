@@ -10,9 +10,9 @@
 
 .list-item {
     position: absolute;
-    top: 0;
     left: 0;
     width: 100%;
+    transition: transform 0.3s ease;
 }
 
 .item-content {
@@ -22,121 +22,5 @@
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
-}
-
-.call-interface {
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.call-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #e4e6e9;
-    padding-bottom: 10px;
-}
-
-.call-title {
-    font-size: 18px;
-    font-weight: bold;
-}
-
-.call-timer {
-    font-size: 14px;
-    color: #65676B;
-}
-
-.call-content {
-    display: flex;
-    justify-content: space-between;
-}
-
-.members-list {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-    flex: 1;
-    max-height: 350px;
-    overflow-y: auto;
-}
-
-.member {
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-    background-color: #f0f2f5;
-    border-radius: 8px;
-    padding: 10px;
-}
-
-.member-avatar {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    margin-right: 15px;
-}
-
-.member-info {
-    flex: 1;
-}
-
-.member-name {
-    font-weight: bold;
-    margin-bottom: 5px;
-}
-
-.member-status {
-    font-size: 0.9em;
-    color: #65676B;
-}
-
-.controls {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding-left: 20px;
-}
-
-.control-button {
-    background-color: #f0f2f5;
-    border: none;
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    margin-bottom: 5px;
-}
-
-.control-button:hover {
-    background-color: #e4e6e9;
-}
-
-.control-button.hang-up {
-    background-color: #ff4d4f;
-}
-
-.control-button.hang-up:hover {
-    background-color: #ff7875;
-}
-
-.control-button svg {
-    width: 24px;
-    height: 24px;
-}
-
-.control-label {
-    font-size: 0.8em;
-    color: #65676B;
-    text-align: center;
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
 }

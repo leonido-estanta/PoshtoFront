@@ -1,7 +1,9 @@
 ﻿import { Component, OnInit, AfterViewInit } from '@angular/core';
-import { NgComponentOutlet, NgForOf, NgStyle } from '@angular/common';
+import {NgComponentOutlet, NgForOf, NgIf, NgStyle} from '@angular/common';
 import { gsap } from 'gsap';
 import { Draggable } from 'gsap/Draggable';
+import {ModalCallComponent} from "../modal-call/modal-call.component";
+import {VoiceService} from "../../../services/voice.service";
 
 gsap.registerPlugin(Draggable);
 
@@ -13,15 +15,23 @@ gsap.registerPlugin(Draggable);
         NgForOf,
         NgComponentOutlet,
         NgStyle,
+        ModalCallComponent,
+        NgIf,
     ],
     styleUrls: ['./modal-handler.component.css']
 })
 export class ModalHandlerComponent implements OnInit, AfterViewInit {
+    
+    constructor(private voiceService: VoiceService) {}
+    
+    get displayCallModal() {
+        return this.voiceService.currentRoomId;
+    }
+    
     container: HTMLElement;
     listItems: HTMLElement[];
     sortables: any[];
     total: number;
-    rowSize: number;
 
     ngOnInit(): void {
         this.container = document.querySelector('.container') as HTMLElement;
@@ -29,32 +39,36 @@ export class ModalHandlerComponent implements OnInit, AfterViewInit {
         this.sortables = this.listItems.map((item, index) => this.Sortable(item, index));
         this.total = this.sortables.length;
 
-        gsap.to(this.container, { duration: 0.5, autoAlpha: 1 });
+        gsap.to(this.container, {duration: 0.5, autoAlpha: 1,});
     }
 
     ngAfterViewInit(): void {
-        this.calculateRowSize();
-        window.addEventListener('resize', this.calculateRowSize.bind(this));
+        this.updateLayout();
+        window.addEventListener('resize', this.updateLayout.bind(this));
     }
 
-    calculateRowSize(): void {
-        const itemHeights = this.listItems.map(item => item.getBoundingClientRect().height);
-        console.log(itemHeights)
-        this.rowSize = Math.max(...itemHeights) + 10; // Add some margin
-        this.sortables.forEach((sortable, index) => gsap.set(sortable.element, { y: index * this.rowSize }));
+    updateLayout(): void {
+        let currentY = 0;
+        this.sortables.forEach((sortable, index) => {
+            const height = sortable.element.offsetHeight;
+            gsap.set(sortable.element, {y: currentY});
+            currentY += height + 10;
+        });
     }
 
     changeIndex(item: any, to: number) {
-        this.arrayMove(this.sortables, item.index, to);
+        const fromIndex = item.index;
+        this.arrayMove(this.sortables, fromIndex, to);
 
         if (to === this.total - 1) {
             this.container.appendChild(item.element);
         } else {
-            const i = item.index > to ? to : to + 1;
+            const i = fromIndex > to ? to : to + 1;
             this.container.insertBefore(item.element, this.container.children[i]);
         }
 
         this.sortables.forEach((sortable, index) => sortable.setIndex(index));
+        this.updateLayout();
     }
 
     Sortable(element: HTMLElement, index: number) {
@@ -85,16 +99,13 @@ export class ModalHandlerComponent implements OnInit, AfterViewInit {
             animation: animation,
             order: order
         };
-
-        gsap.set(element, { y: index * this.rowSize });
-
         return sortable;
     }
 
     setIndex(sortable: any, index: number) {
         sortable.index = index;
 
-        if (!sortable.dragger.isDragging) this.layout(sortable);
+        if (!sortable.dragger.isDragging) this.updateLayout();
     }
 
     downAction(sortable: any) {
@@ -103,27 +114,29 @@ export class ModalHandlerComponent implements OnInit, AfterViewInit {
     }
 
     dragAction(sortable: any) {
-        const index = this.clamp(Math.round(sortable.dragger.y / this.rowSize), 0, this.total - 1);
-
-        if (index !== sortable.index) {
-            this.changeIndex(sortable, index);
+        const draggedY = sortable.dragger.y;
+        let newIndex = sortable.index;
+        for (let i = 0; i < this.sortables.length; i++) {
+            if (i !== sortable.index) {
+                const itemY = gsap.getProperty(this.sortables[i].element, "y") as number;
+                const itemHeight = this.sortables[i].element.offsetHeight;
+                if (draggedY < itemY + itemHeight / 2 && draggedY > itemY - itemHeight / 2) {
+                    newIndex = i;
+                    break;
+                }
+            }
+        }
+        if (newIndex !== sortable.index) {
+            this.changeIndex(sortable, newIndex);
         }
     }
 
     upAction(sortable: any) {
         sortable.animation.reverse();
-        this.layout(sortable);
-    }
-
-    layout(sortable: any) {
-        gsap.to(sortable.element, { duration: 0.3, y: sortable.index * this.rowSize });
+        this.updateLayout();
     }
 
     arrayMove(array: any[], from: number, to: number) {
         array.splice(to, 0, array.splice(from, 1)[0]);
     }
-
-    clamp(value: number, a: number, b: number) {
-        return value < a ? a : (value > b ? b : value);
-    }
-}
+} 

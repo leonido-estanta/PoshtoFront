@@ -1,10 +1,14 @@
 ﻿import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
 import { UserConnection } from "../../../models/user-connection.model";
+import {NgIf} from "@angular/common";
 
 @Component({
     selector: 'app-call-member',
     templateUrl: './call-member.component.html',
     standalone: true,
+    imports: [
+        NgIf
+    ],
     styleUrls: ['./call-member.component.css']
 })
 export class CallMemberComponent implements OnInit, AfterViewInit {

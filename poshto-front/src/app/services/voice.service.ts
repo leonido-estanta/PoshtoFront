@@ -223,6 +223,8 @@ export class VoiceService {
     public closeAllVideoCalls() {
         Object.keys(this._connections).forEach(key => this.closeVideoCall(key));
         this._connections = {};
+        this.usersSub.next(Object.values(this._connections));
+        this.currentRoomId = null;
     }
 
     private closeVideoCall(partnerClientId: string) {
