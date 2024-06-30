@@ -1,5 +1,5 @@
-﻿import {AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild} from "@angular/core";
-import {UserConnection} from "../../../models/user-connection.model";
+﻿import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
+import { UserConnection } from "../../../models/user-connection.model";
 
 @Component({
     selector: 'app-call-member',
@@ -8,11 +8,9 @@ import {UserConnection} from "../../../models/user-connection.model";
     styleUrls: ['./call-member.component.css']
 })
 export class CallMemberComponent implements OnInit, AfterViewInit {
-    @Input()
-    user: UserConnection;
-
+    @Input() user: UserConnection;
     theVideo: HTMLVideoElement;
-    @ViewChild('theVideo', {static: false}) videoElement: ElementRef;
+    @ViewChild('theVideo', { static: false }) videoElement: ElementRef;
 
     constructor() {}
 
@@ -22,16 +20,13 @@ export class CallMemberComponent implements OnInit, AfterViewInit {
         this.theVideo = this.videoElement.nativeElement;
         this.user.streamObservable.subscribe(stream => {
             if (stream) {
+                this.theVideo.srcObject = stream;
                 if (this.user.isCurrentUser) {
-                    this.theVideo.srcObject = stream;
                     this.theVideo.defaultMuted = true;
                     this.theVideo.volume = 0;
                     this.theVideo.muted = true;
-                } else {
-                    this.theVideo.srcObject = stream;
                 }
-            }
-            else {
+            } else {
                 console.log('No stream');
             }
         });

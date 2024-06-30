@@ -2,16 +2,15 @@
 <div class="row">
     <div class="nav-panel">
         <div *ngFor="let room of rooms">
-            <p>{{ room.name }}</p>
-            <button (click)="connect(room)">Connect</button>
-            <button (click)="disconnect(room)">Disconnect</button>
+            <p class="room-name">{{ room.name }}</p>
+            <button type="button" class="btn btn-primary call-button" (click)="connect(room)">Connect</button>
+            <button type="button" class="btn btn-primary call-button" (click)="disconnect(room)">Disconnect</button>
         </div>
     </div>
     <div class="call-panel">
-        <!--<div *ngFor="let user of connectedRoom?.connectedUsers" class="user-avatar">
-            <img [ngSrc]="user.avatarUrl" [alt]="user.name" width="100" height="100">
-            <p style="text-align: center">{{ user.name }}</p>
-        </div>-->
         <app-call-member *ngFor="let user of users;" [user]="user" style="margin-left: 12px"></app-call-member>
+    </div>
+    <div class="modal-panel">
+        <app-modal-handler ></app-modal-handler>
     </div>
 </div>

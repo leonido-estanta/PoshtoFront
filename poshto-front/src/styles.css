@@ -1,5 +1,6 @@
 body {
-    /*overflow: hidden;*/
+    overflow: hidden;
+    background-color: #b3b5c3 !important;
 }
 
 .cdk-virtual-scroll-orientation-vertical .cdk-virtual-scroll-content-wrapper {
