@@ -47,7 +47,7 @@ export class CallComponent implements OnInit {
         this.voiceService.joinRoom(userId, room.id.toString()).then();
     }
 
-    disconnect(room: Room) {
+    disconnect() {
         this.voiceService.closeAllVideoCalls();
     }
 }

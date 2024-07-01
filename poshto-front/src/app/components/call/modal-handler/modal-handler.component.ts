@@ -1,9 +1,9 @@
-﻿import { Component, OnInit, AfterViewInit } from '@angular/core';
-import {NgComponentOutlet, NgForOf, NgIf, NgStyle} from '@angular/common';
+﻿import { Component, OnInit, AfterViewInit, AfterContentChecked, ChangeDetectorRef } from '@angular/core';
+import { NgComponentOutlet, NgForOf, NgIf, NgStyle } from '@angular/common';
 import { gsap } from 'gsap';
 import { Draggable } from 'gsap/Draggable';
-import {ModalCallComponent} from "../modal-call/modal-call.component";
-import {VoiceService} from "../../../services/voice.service";
+import { ModalCallComponent } from "../modal-call/modal-call.component";
+import { VoiceService } from "../../../services/voice.service";
 
 gsap.registerPlugin(Draggable);
 
@@ -20,38 +20,49 @@ gsap.registerPlugin(Draggable);
     ],
     styleUrls: ['./modal-handler.component.css']
 })
-export class ModalHandlerComponent implements OnInit, AfterViewInit {
-    
-    constructor(private voiceService: VoiceService) {}
-    
+export class ModalHandlerComponent implements OnInit, AfterViewInit, AfterContentChecked {
+
+    constructor(private voiceService: VoiceService, private cdr: ChangeDetectorRef) {}
+
     get displayCallModal() {
         return this.voiceService.currentRoomId;
     }
-    
+
     container: HTMLElement;
     listItems: HTMLElement[];
     sortables: any[];
     total: number;
 
     ngOnInit(): void {
-        this.container = document.querySelector('.container') as HTMLElement;
-        this.listItems = Array.from(document.querySelectorAll('.list-item')) as HTMLElement[];
-        this.sortables = this.listItems.map((item, index) => this.Sortable(item, index));
-        this.total = this.sortables.length;
-
-        gsap.to(this.container, {duration: 0.5, autoAlpha: 1,});
+        this.voiceService.usersObservable.subscribe(() => {
+            this.cdr.detectChanges();
+            this.initDraggableItems();
+        });
     }
 
     ngAfterViewInit(): void {
-        this.updateLayout();
+        this.container = document.querySelector('.container') as HTMLElement;
+        this.initDraggableItems();
+        gsap.to(this.container, { duration: 0.5, autoAlpha: 1 });
         window.addEventListener('resize', this.updateLayout.bind(this));
+    }
+
+    ngAfterContentChecked(): void {
+        this.initDraggableItems();
+    }
+
+    initDraggableItems(): void {
+        this.listItems = Array.from(document.querySelectorAll('.list-item')) as HTMLElement[];
+        this.sortables = this.listItems.map((item, index) => this.Sortable(item, index));
+        this.total = this.sortables.length;
+        this.updateLayout();
     }
 
     updateLayout(): void {
         let currentY = 0;
         this.sortables.forEach((sortable, index) => {
             const height = sortable.element.offsetHeight;
-            gsap.set(sortable.element, {y: currentY});
+            gsap.set(sortable.element, { y: currentY });
             currentY += height + 10;
         });
     }
@@ -139,4 +150,4 @@ export class ModalHandlerComponent implements OnInit, AfterViewInit {
     arrayMove(array: any[], from: number, to: number) {
         array.splice(to, 0, array.splice(from, 1)[0]);
     }
-} 
+}
