@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, AfterViewInit, AfterContentChecked, ChangeDetectorRef } from '@angular/core';
+﻿import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { NgComponentOutlet, NgForOf, NgIf, NgStyle } from '@angular/common';
 import { gsap } from 'gsap';
 import { Draggable } from 'gsap/Draggable';
@@ -20,7 +20,7 @@ gsap.registerPlugin(Draggable);
     ],
     styleUrls: ['./modal-handler.component.css']
 })
-export class ModalHandlerComponent implements OnInit, AfterViewInit, AfterContentChecked {
+export class ModalHandlerComponent implements OnInit, AfterViewInit {
 
     constructor(private voiceService: VoiceService, private cdr: ChangeDetectorRef) {}
 
@@ -36,7 +36,9 @@ export class ModalHandlerComponent implements OnInit, AfterViewInit, AfterConten
     ngOnInit(): void {
         this.voiceService.usersObservable.subscribe(() => {
             this.cdr.detectChanges();
-            this.initDraggableItems();
+            setTimeout(() => {
+                this.initDraggableItems();
+            });
         });
     }
 
@@ -45,10 +47,6 @@ export class ModalHandlerComponent implements OnInit, AfterViewInit, AfterConten
         this.initDraggableItems();
         gsap.to(this.container, { duration: 0.5, autoAlpha: 1 });
         window.addEventListener('resize', this.updateLayout.bind(this));
-    }
-
-    ngAfterContentChecked(): void {
-        this.initDraggableItems();
     }
 
     initDraggableItems(): void {

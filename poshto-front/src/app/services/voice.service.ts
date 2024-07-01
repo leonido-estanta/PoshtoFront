@@ -92,8 +92,8 @@ export class VoiceService {
                 connection.user.id = user.id;
             }
             if (connection.isCurrentUser && !connection.streamSub.getValue()) {
-                const stream = await this.getUserMediaInternal();
-                connection.streamSub.next(stream);
+                this.currentMediaStream = await this.getUserMediaInternal();
+                connection.streamSub.next(this.currentMediaStream);
             }
         }
         this.usersSub.next(Object.values(this._connections));
@@ -220,7 +220,82 @@ export class VoiceService {
         await this._hubConnection.invoke("JoinVoiceRoom", userId, roomId);
     }
 
+    async toggleMute() {
+        if (!this.currentMediaStream) return;
+        this.currentMediaStream.getAudioTracks().forEach(track => track.enabled = !track.enabled);
+    }
+
+    async toggleVideo() {
+        if (!this.currentMediaStream) return;
+
+        const videoTrack = this.currentMediaStream.getVideoTracks()[0];
+        if (videoTrack) {
+            if (videoTrack.enabled) {
+                videoTrack.stop();
+                this.currentMediaStream.removeTrack(videoTrack);
+            } else {
+                try {
+                    const newStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    const newVideoTrack = newStream.getVideoTracks()[0];
+                    this.currentMediaStream.addTrack(newVideoTrack);
+                    this._updateConnectionsStream();
+                } catch (error) {
+                    console.error('Error re-enabling video:', error);
+                }
+            }
+        } else {
+            try {
+                const newStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const newVideoTrack = newStream.getVideoTracks()[0];
+                this.currentMediaStream.addTrack(newVideoTrack);
+                this._updateConnectionsStream();
+            } catch (error) {
+                console.error('Error enabling video:', error);
+            }
+        }
+    }
+
+    async toggleScreenShare() {
+        if (!this.currentMediaStream) return;
+        const videoTrack = this.currentMediaStream.getVideoTracks()[0];
+        if (videoTrack.kind === 'video') {
+            videoTrack.stop();
+            try {
+                const screenStream = await navigator.mediaDevices.getDisplayMedia({
+                    video: { frameRate: { ideal: 120 } }
+                });
+                const screenTrack = screenStream.getVideoTracks()[0];
+                screenTrack.onended = () => {
+                    this.currentMediaStream.removeTrack(screenTrack);
+                    this.currentMediaStream.addTrack(videoTrack);
+                    this._updateConnectionsStream();
+                };
+                this.currentMediaStream.removeTrack(videoTrack);
+                this.currentMediaStream.addTrack(screenTrack);
+                this._updateConnectionsStream();
+            } catch (error) {
+                console.error('Error sharing screen:', error);
+                this.currentMediaStream.addTrack(videoTrack);
+            }
+        }
+    }
+
+    private _updateConnectionsStream() {
+        Object.values(this._connections).forEach(connection => {
+            const sender = connection.rtcConnection.getSenders().find(s => s.track.kind === 'video');
+            if (sender) {
+                const newTrack = this.currentMediaStream.getVideoTracks()[0];
+                sender.replaceTrack(newTrack).then(r => {});
+            }
+        });
+    }
+
     public closeAllVideoCalls() {
+        if (this.currentMediaStream) {
+            this.currentMediaStream.getTracks().forEach(track => track.stop());
+            this.currentMediaStream = null;
+        }
+        
         Object.keys(this._connections).forEach(key => this.closeVideoCall(key));
         this._connections = {};
         this.currentRoomId = null;

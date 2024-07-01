@@ -4,7 +4,6 @@
         <div *ngFor="let room of rooms">
             <p class="room-name">{{ room.name }}</p>
             <button type="button" class="btn btn-primary call-button" (click)="connect(room)">Connect</button>
-            <button type="button" class="btn btn-primary call-button" (click)="disconnect()">Disconnect</button>
         </div>
     </div>
     <div class="call-panel">
