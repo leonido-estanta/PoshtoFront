@@ -10,6 +10,8 @@ import { CookieService } from "ngx-cookie-service";
 import { CallMemberComponent } from "./call-member/call-member.component";
 import { UserConnection } from "../../models/user-connection.model";
 import {ModalHandlerComponent} from "./modal-handler/modal-handler.component";
+import {CallPanelComponent} from "./call-panel/call-panel.component";
+import {CallMembersPanelComponent} from "./call-members-panel/call-members-panel.component";
 
 @Component({
     selector: 'app-call',
@@ -25,7 +27,9 @@ import {ModalHandlerComponent} from "./modal-handler/modal-handler.component";
         NgOptimizedImage,
         NgIf,
         CallMemberComponent,
-        ModalHandlerComponent
+        ModalHandlerComponent,
+        CallPanelComponent,
+        CallMembersPanelComponent
     ],
     styleUrls: ['./call.component.css']
 })
@@ -40,11 +44,6 @@ export class CallComponent implements OnInit {
 
     ngOnInit() {
         this.voiceService.requestRoomsData().then();
-    }
-
-    connect(room: Room) {
-        const userId = this.cookieService.get('userId');
-        this.voiceService.joinRoom(userId, room.id.toString()).then();
     }
 
     disconnect() {

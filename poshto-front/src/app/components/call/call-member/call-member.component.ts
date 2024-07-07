@@ -1,6 +1,6 @@
 ﻿import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
 import { UserConnection } from "../../../models/user-connection.model";
-import {NgIf} from "@angular/common";
+import { NgIf } from "@angular/common";
 
 @Component({
     selector: 'app-call-member',
@@ -16,13 +16,16 @@ export class CallMemberComponent implements OnInit, AfterViewInit {
     theVideo: HTMLVideoElement;
     @ViewChild('theVideo', { static: false }) videoElement: ElementRef;
 
+    @Input() avatar: string;
+    @Input() name: string;
+
     constructor() {}
 
     ngOnInit() {}
 
     ngAfterViewInit() {
-        this.theVideo = this.videoElement.nativeElement;
-        this.user.streamObservable.subscribe(stream => {
+        this.theVideo = this.videoElement?.nativeElement;
+        this.user?.streamObservable.subscribe(stream => {
             if (stream) {
                 this.theVideo.srcObject = stream;
                 if (this.user.isCurrentUser) {

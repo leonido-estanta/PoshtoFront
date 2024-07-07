@@ -1,0 +1,5 @@
+﻿<div class="conversation-view">
+    <div class="participants-grid">
+        <app-call-member *ngFor="let user of userConnections" [user]="user" [avatar]="user.user.id" [name]="user.user.id"></app-call-member>
+    </div>
+</div>

@@ -9,16 +9,13 @@ import {Router} from "@angular/router";
 })
 export class HeaderComponent implements OnInit {
     
-    constructor(private router: Router) {
+    constructor() {
     }
     ngOnInit() {
     }
 
-    isActive(route: string): boolean {
-        return this.router.url.includes(route);
-    }
-    
-    navigate(route: string) {
-        this.router.navigate([route]);
+    togglePanel() {
+        const panel = document.getElementById('sidePanel');
+        panel.classList.toggle('active');
     }
 }

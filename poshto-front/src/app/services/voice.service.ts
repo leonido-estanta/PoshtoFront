@@ -26,7 +26,7 @@ export class VoiceService {
     public currentIceServers: RTCIceServer[];
     public connected = false;
 
-    constructor(private cookieService: CookieService) {
+    constructor() {
         this.usersObservable.subscribe(users => this.users = users);
 
         this._hubConnection = new HubConnectionBuilder().withUrl("http://localhost:5284/voiceHub").build();
@@ -46,8 +46,8 @@ export class VoiceService {
         });
 
         this._hubConnection.on("updateUserList", async (roomId: string, users: User[]) => {
-            if (this.currentRoomId === roomId) {
-                await this._updateUserList(users);
+            if (this.currentRoomId == roomId) {
+                await this._updateUserList(users, roomId);
             }
         });
 
@@ -83,9 +83,8 @@ export class VoiceService {
         return this._hubConnection.invoke("SendRoomsData", true);
     }
 
-    private async _updateUserList(users: User[]): Promise<void> {
+    private async _updateUserList(users: User[], roomId: string): Promise<void> {
         const iceServers = await this.getIceServers();
-
         for (const user of users) {
             const connection = await this.getConnection(user.connectionId, iceServers, false);
             if (connection.user.id !== user.id) {
@@ -95,6 +94,8 @@ export class VoiceService {
                 this.currentMediaStream = await this.getUserMediaInternal();
                 connection.streamSub.next(this.currentMediaStream);
             }
+            
+            connection.currentRoomId = roomId;
         }
         this.usersSub.next(Object.values(this._connections));
     }
@@ -105,7 +106,7 @@ export class VoiceService {
                 this.initiateOffer(user);
             }
         });
-        await this._updateUserList(users);
+        await this._updateUserList(users, roomId);
     }
 
     private async initiateOffer(acceptingUser: User) {
@@ -126,7 +127,7 @@ export class VoiceService {
         if (this._connections[partnerClientId]) this.closeVideoCall(partnerClientId);
 
         const connection = new RTCPeerConnection({ iceServers });
-        const userConnection = new UserConnection({ id: "", connectionId: partnerClientId }, false, connection);
+        const userConnection = new UserConnection({ id: "", connectionId: partnerClientId }, false, connection, null);
 
         this._connections[partnerClientId] = userConnection;
 
@@ -215,7 +216,7 @@ export class VoiceService {
 
         this.closeAllVideoCalls();
 
-        this._connections[this.currentConnectionId] = new UserConnection({ id: userId, connectionId: this.currentConnectionId }, true, undefined);
+        this._connections[this.currentConnectionId] = new UserConnection({ id: userId, connectionId: this.currentConnectionId }, true, undefined, roomId);
         this.currentRoomId = roomId;
         await this._hubConnection.invoke("JoinVoiceRoom", userId, roomId);
     }
@@ -343,8 +344,12 @@ export class VoiceService {
 
         try {
             await connection.rtcConnection.setRemoteDescription(desc);
-            const localStream = await this.getUserMediaInternal();
-            localStream.getTracks().forEach(track => connection.rtcConnection.addTrack(track, localStream));
+            const senders = connection.rtcConnection.getSenders();
+            if (!senders || senders.length === 0) {
+                const localStream = await this.getUserMediaInternal();
+                localStream.getTracks().forEach(track => connection.rtcConnection.addTrack(track, localStream));
+            }
+            
             const answer = await connection.rtcConnection.createAnswer();
             await connection.rtcConnection.setLocalDescription(answer);
             await this.sendSignal({ type: SignalType.videoAnswer, sdp: connection.rtcConnection.localDescription }, partnerClientId);

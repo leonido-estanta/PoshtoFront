@@ -1,0 +1,19 @@
+﻿<div class="panel">
+    <ul class="room-list">
+        <li *ngFor="let room of rooms">
+            <div class="room-header">
+                <div class="room-name">{{room.name}}</div>
+                <button (click)="connect(room)" class="connect-btn">Connect</button>
+            </div>
+            <ul class="user-list">
+                <li *ngFor="let user of getRoomUsers(room)" class="user-item">
+                    <div class="user-avatar">TE</div>
+                    {{user.user.id}}
+                </li>
+            </ul>
+        </li>
+    </ul>
+    <div class="add-room">
+        Create New Room
+    </div>
+</div>

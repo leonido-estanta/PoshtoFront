@@ -1,15 +1,11 @@
-﻿<app-header></app-header>
-<div class="row">
-    <div class="nav-panel">
-        <div *ngFor="let room of rooms">
-            <p class="room-name">{{ room.name }}</p>
-            <button type="button" class="btn btn-primary call-button" (click)="connect(room)">Connect</button>
-        </div>
-    </div>
-    <div class="call-panel">
-        <app-call-member *ngFor="let user of users;" [user]="user" style="margin-left: 12px"></app-call-member>
-    </div>
-    <div class="modal-panel">
-        <app-modal-handler ></app-modal-handler>
-    </div>
-</div>
+﻿<main class="main-content">
+    <app-call-panel></app-call-panel>
+    <app-call-members-panel class="flex"></app-call-members-panel>
+</main>
+
+<!--<div class="call-panel">
+    <app-call-member *ngFor="let user of users;" [user]="user" style="margin-left: 12px"></app-call-member>
+</div>-->
+<!--<div class="modal-panel">
+    <app-modal-handler ></app-modal-handler>
+</div>-->

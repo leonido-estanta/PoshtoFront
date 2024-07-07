@@ -3,6 +3,7 @@ import {BehaviorSubject, Observable} from "rxjs";
 
 export class UserConnection {
     user: User;
+    currentRoomId: string;
     isCurrentUser: boolean;
     rtcConnection: RTCPeerConnection;
     streamSub: BehaviorSubject<MediaStream>;
@@ -14,10 +15,11 @@ export class UserConnection {
     cameraEnabled = false;
     screenShareEnabled = false;
 
-    constructor(user: User, isCurrentUser: boolean, rtcConnection: RTCPeerConnection) {
+    constructor(user: User, isCurrentUser: boolean, rtcConnection: RTCPeerConnection, currentRoomId: string) {
         this.user = user;
         this.isCurrentUser = isCurrentUser;
         this.rtcConnection = rtcConnection;
+        this.currentRoomId = currentRoomId;
         this.streamSub = new BehaviorSubject<MediaStream>(undefined);
         this.streamObservable = this.streamSub.asObservable();
     }

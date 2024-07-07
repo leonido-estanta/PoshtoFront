@@ -1,4 +1,8 @@
 ﻿<div class="videoWrap">
     <video #theVideo autoplay="autoplay" class="video-element"></video>
-    <div class="user-id">{{user.user.id}}</div>
+    <div class="user-id">{{user?.user.id}}</div>
+</div>
+<div class="participant">
+    <div class="participant-avatar">{{avatar}}</div>
+    <div class="participant-name">{{name}}</div>
 </div>
