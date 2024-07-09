@@ -9,7 +9,7 @@ import {Router} from "@angular/router";
 })
 export class HeaderComponent implements OnInit {
     
-    constructor() {
+    constructor(private router: Router) {
     }
     ngOnInit() {
     }
@@ -17,5 +17,13 @@ export class HeaderComponent implements OnInit {
     togglePanel() {
         const panel = document.getElementById('sidePanel');
         panel.classList.toggle('active');
+    }
+
+    isActive(route: string): boolean {
+        return this.router.url.includes(route);
+    }
+
+    navigate(route: string) {
+        this.router.navigate([route]);
     }
 }

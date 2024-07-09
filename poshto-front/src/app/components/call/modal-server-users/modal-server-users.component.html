@@ -1,0 +1,15 @@
+﻿<div class="modal">
+    <div class="modal-header">Users</div>
+    <ul class="user-list">
+        <li *ngFor="let user of serverUsers" class="user-item">
+            <img [src]="user.avatarUrl" [alt]="user.name" class="user-avatar">
+            <div class="user-info">
+                <div class="user-name">{{user.name}}</div>
+                <div class="user-status">
+                    <span [class]="user.onlineStatus == OnlineStatus.Online ? 'online-indicator online' : 'online-indicator offline'"></span>
+                    {{user.onlineStatus == OnlineStatus.Online ? 'Online' : 'Offline'}}
+                </div>
+            </div>
+        </li>
+    </ul>
+</div>

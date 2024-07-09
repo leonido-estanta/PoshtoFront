@@ -1,12 +1,12 @@
 ﻿import { Injectable } from "@angular/core";
-import { CookieService } from "ngx-cookie-service";
 import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
 import { BehaviorSubject } from "rxjs";
 import { UserConnection } from "../models/user-connection.model";
-import { User } from "../models/user";
+import { UserVoiceRoom } from "../models/userVoiceRoom";
 import { ISignal } from "../models/ISignal";
 import { SignalType } from "../models/SignalType";
 import { Room } from "../models/room";
+import {CookieService} from "ngx-cookie-service";
 
 @Injectable({
     providedIn: "root",
@@ -26,11 +26,16 @@ export class VoiceService {
     public currentIceServers: RTCIceServer[];
     public connected = false;
 
-    constructor() {
+    constructor(private cookieService: CookieService) {
         this.usersObservable.subscribe(users => this.users = users);
 
-        this._hubConnection = new HubConnectionBuilder().withUrl("http://localhost:5284/voiceHub").build();
-
+        const authToken = this.cookieService.get('authToken');
+        this._hubConnection = new HubConnectionBuilder()
+            .withUrl("http://localhost:5284/voiceHub", {
+                accessTokenFactory: () => authToken
+            })
+            .build();
+        
         this._initializeConnection().then();
 
         this._hubConnection.onclose((err) => {
@@ -39,13 +44,13 @@ export class VoiceService {
             this.reset();
         });
 
-        this._hubConnection.on("callToUserList", async (roomId: string, users: User[]) => {
+        this._hubConnection.on("callToUserList", async (roomId: string, users: UserVoiceRoom[]) => {
             if (this.currentRoomId == roomId) {
                 await this._handleUserList(roomId, users);
             }
         });
 
-        this._hubConnection.on("updateUserList", async (roomId: string, users: User[]) => {
+        this._hubConnection.on("updateUserList", async (roomId: string, users: UserVoiceRoom[]) => {
             if (this.currentRoomId == roomId) {
                 await this._updateUserList(users, roomId);
             }
@@ -55,7 +60,7 @@ export class VoiceService {
             this.roomsSub.next(rooms?.map(s => s['voiceRoom'])); //TODO: Refactor
         });
 
-        this._hubConnection.on('receiveSignal', async (user: User, signal: string) => {
+        this._hubConnection.on('receiveSignal', async (user: UserVoiceRoom, signal: string) => {
             await this._handleNewSignal(user, signal);
         });
     }
@@ -72,7 +77,7 @@ export class VoiceService {
         }
     }
 
-    private async waitForConnection() {
+    private async waitForConnection() { // TODO: Duplicate
         while (this._hubConnection.state !== "Connected") {
             await new Promise(resolve => setTimeout(resolve, 100));
         }
@@ -83,7 +88,7 @@ export class VoiceService {
         return this._hubConnection.invoke("SendRoomsData", true);
     }
 
-    private async _updateUserList(users: User[], roomId: string): Promise<void> {
+    private async _updateUserList(users: UserVoiceRoom[], roomId: string): Promise<void> {
         const iceServers = await this.getIceServers();
         for (const user of users) {
             const connection = await this.getConnection(user.connectionId, iceServers, false);
@@ -100,7 +105,7 @@ export class VoiceService {
         this.usersSub.next(Object.values(this._connections));
     }
 
-    private async _handleUserList(roomId: string, users: User[]) {
+    private async _handleUserList(roomId: string, users: UserVoiceRoom[]) {
         users.forEach(user => {
             if (!this._connections[user.connectionId] && user.connectionId !== this.currentConnectionId) {
                 this.initiateOffer(user);
@@ -109,7 +114,7 @@ export class VoiceService {
         await this._updateUserList(users, roomId);
     }
 
-    private async initiateOffer(acceptingUser: User) {
+    private async initiateOffer(acceptingUser: UserVoiceRoom) {
         const partnerClientId = acceptingUser.connectionId;
 
         if (this._connections[partnerClientId]) return;
@@ -311,7 +316,7 @@ export class VoiceService {
         }
     }
 
-    private async _handleNewSignal(user: User, data: string) {
+    private async _handleNewSignal(user: UserVoiceRoom, data: string) {
         const partnerClientId = user.connectionId;
         const signal: ISignal = JSON.parse(data);
 

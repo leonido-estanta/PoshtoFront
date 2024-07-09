@@ -1,8 +1,8 @@
-﻿import {User} from "./user";
+﻿import {UserVoiceRoom} from "./userVoiceRoom";
 
 export class Room {
     id: number;
     name: string;
     
-    connectedUsers: User[] = [];
+    connectedUsers: UserVoiceRoom[] = [];
 }

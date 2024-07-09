@@ -1,34 +1,37 @@
 ﻿import {Injectable} from "@angular/core";
-import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {CookieService} from "ngx-cookie-service";
+import {HubConnection, HubConnectionBuilder} from "@microsoft/signalr";
+import {ServerUser} from "../models/userVoiceRoom";
 
 @Injectable({
     providedIn: 'root',
 })
 export class UserService {
-    constructor(private http: HttpClient,
-                private cookieService: CookieService) {
+    private _hubConnection: HubConnection;
 
-    }
-
-    private baseUrl = 'http://localhost:5284';
-
-    createAuthorizationHeader(headers: HttpHeaders) {
-        return headers.append('Authorization', `Bearer ${this.cookieService.get('authToken')}`);
-    }
+    serverUsers: ServerUser[] = [];
     
-    getUsers() {
-        let headers = new HttpHeaders();
-        headers = this.createAuthorizationHeader(headers);
+    constructor(private cookieService: CookieService) {
+        const authToken = this.cookieService.get('authToken');
+        this._hubConnection = new HubConnectionBuilder().withUrl("http://localhost:5284/userHub", {
+            accessTokenFactory: () => authToken
+        }).build();
         
-        return this.http.get(`${this.baseUrl}/User/List`, {headers});
-    }
-    
-    getUser(userId: number) {
-        let headers = new HttpHeaders();
-        headers = this.createAuthorizationHeader(headers);
-
-        return this.http.get(`${this.baseUrl}/User/Get/${userId}`, {headers});
+        this._hubConnection.on('updateServerUsers', async (users: ServerUser[]) => {
+            this.serverUsers = users;
+        });
+        
+        this.requestRoomsData().then();
     }
 
+    async requestRoomsData() {
+        await this.waitForConnection();
+        this._hubConnection.invoke("EnterServer", this.cookieService.get('userId')).then();
+    }
+
+    private async waitForConnection() {
+        while (this._hubConnection.state !== "Connected") {
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+    }
 }

@@ -4,6 +4,7 @@ import { gsap } from 'gsap';
 import { Draggable } from 'gsap/Draggable';
 import { ModalCallComponent } from "../modal-call/modal-call.component";
 import { VoiceService } from "../../../services/voice.service";
+import {ModalServerUsersComponent} from "../modal-server-users/modal-server-users.component";
 
 gsap.registerPlugin(Draggable);
 
@@ -17,6 +18,7 @@ gsap.registerPlugin(Draggable);
         NgStyle,
         ModalCallComponent,
         NgIf,
+        ModalServerUsersComponent,
     ],
     styleUrls: ['./modal-handler.component.css']
 })

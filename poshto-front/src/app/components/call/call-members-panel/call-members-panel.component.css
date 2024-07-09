@@ -1,0 +1,42 @@
+.conversation-view {
+    width: calc(100vw - 300px);
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background-color: #f0f0f0;
+}
+.participants-grid {
+    display: grid;
+    gap: 16px;
+    width: 100%;
+    max-width: 1200px;
+}
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+    .participants-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    .participant {
+        aspect-ratio: 16 / 9;
+    }
+}
+@media (min-width: 1280px) and (max-width: 1919px) {
+    .participants-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    .participant {
+        aspect-ratio: 16 / 9;
+    }
+}
+@media (min-width: 1920px) {
+    .participants-grid {
+        grid-template-columns: repeat(6, 1fr);
+    }
+    .participant {
+        aspect-ratio: 3 / 2;
+        width: 400px;
+    }
+}

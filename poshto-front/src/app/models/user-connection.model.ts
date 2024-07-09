@@ -1,8 +1,8 @@
-﻿import {User} from "./user";
+﻿import {UserVoiceRoom} from "./userVoiceRoom";
 import {BehaviorSubject, Observable} from "rxjs";
 
 export class UserConnection {
-    user: User;
+    user: UserVoiceRoom;
     currentRoomId: string;
     isCurrentUser: boolean;
     rtcConnection: RTCPeerConnection;
@@ -15,7 +15,7 @@ export class UserConnection {
     cameraEnabled = false;
     screenShareEnabled = false;
 
-    constructor(user: User, isCurrentUser: boolean, rtcConnection: RTCPeerConnection, currentRoomId: string) {
+    constructor(user: UserVoiceRoom, isCurrentUser: boolean, rtcConnection: RTCPeerConnection, currentRoomId: string) {
         this.user = user;
         this.isCurrentUser = isCurrentUser;
         this.rtcConnection = rtcConnection;

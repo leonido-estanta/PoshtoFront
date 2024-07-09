@@ -9,15 +9,24 @@ export class AuthService {
 
     constructor(private http: HttpClient) {}
 
-    loginRequest(seed: string) {
-        const url = `${this.baseUrl}/Auth/Login?seedPhrase=${seed}`;
+    loginRequest(email: string, password: string) {
+        const url = `${this.baseUrl}/Auth/Login`;
+        let model = {
+            email: email,
+            password: password
+        }
         
-        return this.http.post(url, {});
+        return this.http.post(url, model);
     }
 
-    registerRequest(seed: string) {
-        const url = `${this.baseUrl}/Auth/Register?seedPhrase=${seed}`;
-        return this.http.post(url, {});
+    registerRequest(email: string, password: string) {
+        const url = `${this.baseUrl}/Auth/Register`;
+        let model = {
+            email: email,
+            password: password
+        }
+        
+        return this.http.post(url, model);
     }
 
     generateSeed() {

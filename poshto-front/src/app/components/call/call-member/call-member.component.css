@@ -17,3 +17,39 @@
     color: #007bff;
     font-weight: bold;
 }
+
+.participant-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    color: white;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.participant-name {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--on-surface);
+    text-align: center;
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    .panel {
+        width: 250px;
+    }
+    .conversation-view {
+        width: calc(100vw - 250px);
+    }
+    .participants-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .participant {
+        aspect-ratio: 16 / 9;
+    }
+}

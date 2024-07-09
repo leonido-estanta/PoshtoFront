@@ -1,32 +1,42 @@
-<div id="box">
-    <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
-        <div id="square">
-            <span id="left-side"></span>
-            <span id="top-side-1"></span>
-            <span id="top-side-2"></span>
-            <span id="top-side-3"></span>
-            <span id="right-side"></span>
-            <span id="bottom-side-1"></span>
-            <span id="bottom-side-2"></span>
-            <span id="bottom-side-3"></span>
-        </div>
-        <div style="z-index: 9999; padding-top: 30px">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-                <input [disabled]="isDisabled" [(ngModel)]="inputs[0]" (input)="updateLine()" type="text" placeholder="Input 1">
-                <input [disabled]="isDisabled" [(ngModel)]="inputs[1]" (input)="updateLine()" type="text" placeholder="Input 2">
-                <input [disabled]="isDisabled" [(ngModel)]="inputs[2]" (input)="updateLine()" type="text" placeholder="Input 3">
-                <input [disabled]="isDisabled" [(ngModel)]="inputs[3]" (input)="updateLine()" type="text" placeholder="Input 4">
+<main *ngIf="loginStatus" class="main-content">
+    <div class="login-container">
+        <h1 class="login-title">Login</h1>
+        <form action="/login" method="POST">
+            <div class="input-group">
+                <label for="username">Email</label>
+                <input [(ngModel)]="email" type="text" id="username" name="username" required>
             </div>
-            <div style="display: flex; justify-content: space-between;">
-                <input [disabled]="isDisabled" [(ngModel)]="inputs[4]" (input)="updateLine()" type="text" placeholder="Input 5">
-                <input [disabled]="isDisabled" [(ngModel)]="inputs[5]" (input)="updateLine()" type="text" placeholder="Input 6">
-                <input [disabled]="isDisabled" [(ngModel)]="inputs[6]" (input)="updateLine()" type="text" placeholder="Input 7">
-                <input [disabled]="isDisabled" [(ngModel)]="inputs[7]" (input)="updateLine()" type="text" placeholder="Input 8">
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input [(ngModel)]="password" type="password" id="password" name="password" required>
             </div>
-        </div>
-        <div style="display: flex; justify-content: space-between;">
-            <button id="registerButton" (click)="handleRegister()">Register</button>
-            <button id="loginButton" (click)="handleLogin()">Login</button>
+            <button (click)="login()" type="submit" class="login-btn">Log In</button>
+        </form>
+        <div class="forgot-password">
+            <p>Forgot your password?
+                <a class="link" (click)="setLogin(false)">Register</a>
+            </p>
         </div>
     </div>
-</div>
+</main>
+<main *ngIf="!loginStatus" class="main-content">
+    <div class="login-container">
+        <h1 class="login-title">Registration</h1>
+        <form action="/login" method="POST">
+            <div class="input-group">
+                <label for="username">Email</label>
+                <input [(ngModel)]="email" type="text" id="username" name="username" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input [(ngModel)]="password" type="password" id="password" name="password" required>
+            </div>
+            <button (click)="register()" type="submit" class="login-btn">Register</button>
+        </form>
+        <div class="forgot-password">
+            <p>Already registered?
+                <a class="link" (click)="setLogin(true)">Login</a>
+            </p>
+        </div>
+    </div>
+</main>

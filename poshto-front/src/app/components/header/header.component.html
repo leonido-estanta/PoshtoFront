@@ -1,16 +1,8 @@
-﻿<!--<nav class="navbar" style="background-color: rgba(0, 123, 255, 0.5);">
-    <div class="container-fluid">
-        <div class="d-flex">
-            <div (click)="navigate('messenger')" [class.active]="isActive('messenger')" class="p-2 m-1 bg-light rounded" role='button'>Messenger</div>
-            <div (click)="navigate('call')" [class.active]="isActive('call')" class="p-2 m-1 bg-light rounded" role='button'>Messenger</div>
-        </div>
-    </div>
-</nav>-->
-<header class="header">
-    <div class="logo">poŝto</div>
+﻿<header class="header">
+    <div class="logo">Poŝto</div>
     <nav class="nav-buttons">
-        <button class="nav-btn">messenger</button>
-        <button class="nav-btn">call</button>
+        <button (click)="navigate('messenger')" class="nav-btn">Messenger</button>
+        <button (click)="navigate('call')" class="nav-btn">Call</button>
     </nav>
     <button class="menu-toggle" (click)="togglePanel()">☰</button>
 </header>
