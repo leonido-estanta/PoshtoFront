@@ -1,47 +1,49 @@
-﻿import {Component, OnInit, ViewChild} from "@angular/core";
-import {HeaderComponent} from "../header/header.component";
+﻿import {Component, OnInit} from '@angular/core';
 import {FormsModule} from "@angular/forms";
+import {NgForOf} from "@angular/common";
 import {ChatService} from "../../services/chat.service";
-import {NgClass, NgForOf} from "@angular/common";
-import {CookieService} from "ngx-cookie-service";
-import {CdkFixedSizeVirtualScroll, CdkVirtualForOf, CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
+import {UserService} from "../../services/user.service";
+import {ServerUser} from "../../models/userVoiceRoom";
 
 @Component({
-    selector: 'app-messenger',
-    standalone: true,
+    selector: 'messenger-component',
     templateUrl: './messenger.component.html',
+    styleUrls: ['./messenger.component.css'],
     imports: [
-        HeaderComponent,
         FormsModule,
-        NgClass,
-        NgForOf,
-        CdkVirtualScrollViewport,
-        CdkVirtualForOf,
-        CdkFixedSizeVirtualScroll
+        NgForOf
     ],
-    styleUrls: ['./messenger.component.css']
+    standalone: true
 })
-export class MessengerComponent implements OnInit {
-    @ViewChild(CdkVirtualScrollViewport) viewport: CdkVirtualScrollViewport;
-    messages = [];
-    pageSize = 50;
-    loadingMessages = false;
-    inputMessage = '';
-    pageLoaded = 0;
 
-    constructor(private chatService: ChatService,
-                private cookieService: CookieService) {}
+export class MessengerComponent implements OnInit {
+    constructor(private chatService: ChatService, private userService: UserService) {}
+
+    messages = [];
+    loadingMessages = false;
+    pageSize = 50;
+    pageLoaded = 0;
 
     ngOnInit() {
         this.chatService.startConnection();
+        this.userService.startConnection();
         this.loadMessages(true);
-        
+
+        this.userService._hubConnection.on('updateServerUsers', async (users: ServerUser[]) => {
+            this.userService.serverUsers = users;
+            console.log(users)
+        });
+
         this.chatService.hubConnection.on('ReceiveMessage', (data) => {
             if (data) {
                 this.messages = [...this.messages, data];
-                setTimeout(() => this.viewport.scrollToIndex(this.messages.length - 1), 0);
+                //setTimeout(() => this.viewport.scrollToIndex(this.messages.length - 1), 0);
             }
         });
+    }
+
+    getMessageUserAvatar(message) {
+        return this.userService.serverUsers.filter(w => w.id == message.senderId)[0]?.avatarUrl;
     }
 
     loadMessages(initialLoad: boolean = false) {
@@ -54,19 +56,15 @@ export class MessengerComponent implements OnInit {
                 this.loadingMessages = false;
                 this.pageLoaded += 1;
                 if (initialLoad) {
-                    setTimeout(() => this.viewport.scrollToIndex(this.messages.length - 1), 0);
+                    //setTimeout(() => this.viewport.scrollToIndex(this.messages.length - 1), 0);
                 } else {
-                    this.viewport.checkViewportSize();
-                    setTimeout(() => this.viewport.scrollToIndex(newMessagesCount), 0);
+                    //this.viewport.checkViewportSize();
+                    //setTimeout(() => this.viewport.scrollToIndex(newMessagesCount), 0);
                 }
             });
     }
 
-    onScroll() {
-        if (this.viewport.getOffsetToRenderedContentStart() === 0) {
-            this.loadMessages();
-        }
-    }
+    inputMessage = '';
 
     sendMessage() {
         if (this.inputMessage) {
@@ -76,7 +74,9 @@ export class MessengerComponent implements OnInit {
         }
     }
 
-    isFromMe(message): boolean {
-        return message.senderId == this.cookieService.get('userId');
+    adjustTextareaHeight(event: Event) {
+        const textarea = event.target as HTMLTextAreaElement;
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
     }
 }

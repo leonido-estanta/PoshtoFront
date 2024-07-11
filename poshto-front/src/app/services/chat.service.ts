@@ -7,10 +7,7 @@ import {HubConnection, HubConnectionBuilder} from "@microsoft/signalr";
     providedIn: 'root',
 })
 export class ChatService {
-    constructor(private http: HttpClient,
-                private cookieService: CookieService) {
-        
-    }
+    constructor(private http: HttpClient, private cookieService: CookieService) {}
     
     private baseUrl = 'http://localhost:5284';
     public hubConnection: HubConnection;

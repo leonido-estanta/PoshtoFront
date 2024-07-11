@@ -7,21 +7,19 @@ import {ServerUser} from "../models/userVoiceRoom";
     providedIn: 'root',
 })
 export class UserService {
-    private _hubConnection: HubConnection;
+    public _hubConnection: HubConnection;
 
     serverUsers: ServerUser[] = [];
     
     constructor(private cookieService: CookieService) {
+        this.requestRoomsData().then();
+    }
+
+    startConnection(): void {
         const authToken = this.cookieService.get('authToken');
         this._hubConnection = new HubConnectionBuilder().withUrl("http://localhost:5284/userHub", {
             accessTokenFactory: () => authToken
         }).build();
-        
-        this._hubConnection.on('updateServerUsers', async (users: ServerUser[]) => {
-            this.serverUsers = users;
-        });
-        
-        this.requestRoomsData().then();
     }
 
     async requestRoomsData() {
@@ -30,7 +28,7 @@ export class UserService {
     }
 
     private async waitForConnection() {
-        while (this._hubConnection.state !== "Connected") {
+        while (this._hubConnection?.state !== "Connected") {
             await new Promise(resolve => setTimeout(resolve, 100));
         }
     }
