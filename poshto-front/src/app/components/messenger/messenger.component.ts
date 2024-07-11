@@ -26,13 +26,13 @@ export class MessengerComponent implements OnInit {
 
     ngOnInit() {
         this.chatService.startConnection();
-        this.userService.startConnection();
+        //this.userService.startConnection();
         this.loadMessages(true);
 
-        this.userService._hubConnection.on('updateServerUsers', async (users: ServerUser[]) => {
+        /*this.userService._hubConnection.on('updateServerUsers', async (users: ServerUser[]) => {
             this.userService.serverUsers = users;
             console.log(users)
-        });
+        });*/
 
         this.chatService.hubConnection.on('ReceiveMessage', (data) => {
             if (data) {

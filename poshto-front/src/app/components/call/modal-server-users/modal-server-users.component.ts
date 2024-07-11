@@ -1,7 +1,7 @@
-﻿import { AfterViewInit, Component, OnInit } from "@angular/core";
+﻿import { Component, OnInit } from "@angular/core";
 import {NgClass, NgForOf, NgIf} from "@angular/common";
 import {UserService} from "../../../services/user.service";
-import {OnlineStatus} from "../../../models/userVoiceRoom";
+import {OnlineStatus, ServerUser} from "../../../models/userVoiceRoom";
 
 @Component({
     selector: 'app-modal-server-users',
@@ -14,19 +14,17 @@ import {OnlineStatus} from "../../../models/userVoiceRoom";
     ],
     styleUrls: ['./modal-server-users.component.css']
 })
-export class ModalServerUsersComponent implements OnInit, AfterViewInit {
+export class ModalServerUsersComponent implements OnInit {
+
+    serverUsers: ServerUser[] = [];
 
     constructor(private userService: UserService) {
-        
+        this.userService.usersObservable.subscribe(users => {
+           this.serverUsers = users; 
+        });
     }
-    
-    get serverUsers() {
-        return this.userService.serverUsers;
-    }
-    
-    ngOnInit() {}
 
-    ngAfterViewInit() {}
+    ngOnInit() {}
 
     protected readonly OnlineStatus = OnlineStatus;
 }
