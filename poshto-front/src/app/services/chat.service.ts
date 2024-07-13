@@ -3,12 +3,13 @@ import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {HubConnection} from "@microsoft/signalr";
 import {HubService} from "./hub.service";
 import {AuthService} from "./auth.service";
+import {CookieService} from "ngx-cookie-service";
 
 @Injectable({
     providedIn: 'root',
 })
 export class ChatService {
-    constructor(private http: HttpClient, private authService: AuthService, private hubService: HubService) {}
+    constructor(private http: HttpClient, private authService: AuthService, private hubService: HubService, private cookieService: CookieService) {}
     
     private baseUrl = 'http://localhost:5284';
     public hubConnection: HubConnection;
@@ -24,14 +25,7 @@ export class ChatService {
         this.hubConnection = this.hubService.initializeHubConnection('chatHub');
     }
 
-    sendMessage(message: string) {
-        let headers = new HttpHeaders();
-        headers = this.authService.createAuthorizationHeader(headers);
-        
-        let body = {
-            text: message
-        };
-
-        return this.http.post(`${this.baseUrl}/Chat/Add`, body,{ headers });
+    async sendMessage(message: string) {
+        await this.hubConnection.invoke("AddMessage", this.cookieService.get('userId'), message);
     }
 }

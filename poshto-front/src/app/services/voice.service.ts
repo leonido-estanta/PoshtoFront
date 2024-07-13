@@ -53,7 +53,6 @@ export class VoiceService {
         });
 
         this._hubConnection.on("updateRoomsData", async (rooms: Room[]) => {
-            console.log(rooms)
             this.roomsSub.next(rooms?.map(s => s['voiceRoom'])); //TODO: Refactor
         });
 
