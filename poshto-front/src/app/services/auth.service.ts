@@ -1,5 +1,7 @@
-﻿import { HttpClient } from '@angular/common/http';
+﻿import {HttpClient, HttpHeaders} from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import {Observable} from "rxjs";
+import {CookieService} from "ngx-cookie-service";
 
 @Injectable({
     providedIn: 'root',
@@ -7,7 +9,7 @@ import { Injectable } from '@angular/core';
 export class AuthService {
     private baseUrl = 'http://localhost:5284';
 
-    constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient, private cookieService: CookieService) {}
 
     loginRequest(email: string, password: string) {
         const url = `${this.baseUrl}/Auth/Login`;
@@ -17,6 +19,11 @@ export class AuthService {
         }
         
         return this.http.post(url, model);
+    }
+
+    renewToken(): Observable<any> {
+        const token = this.cookieService.get('authToken');
+        return this.http.post(`${this.baseUrl}/Auth/RenewToken`, { token });
     }
 
     registerRequest(email: string, password: string) {
@@ -29,8 +36,14 @@ export class AuthService {
         return this.http.post(url, model);
     }
 
-    generateSeed() {
-        const url = `${this.baseUrl}/Generator/Generate`;
-        return this.http.get(url, { responseType: 'text' });
+    logout() {
+        this.cookieService.delete('authToken');
+        this.cookieService.delete('userId');
+
+        window.location.href = '/auth';
+    }
+
+    createAuthorizationHeader(headers: HttpHeaders) {
+        return headers.append('Authorization', `Bearer ${this.cookieService.get('authToken')}`);
     }
 }

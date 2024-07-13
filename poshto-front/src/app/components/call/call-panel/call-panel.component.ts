@@ -24,7 +24,7 @@ export class CallPanelComponent {
     }
     
     getRoomUsers(room: Room) {
-        return this.users.filter(w => w.currentRoomId == room.id.toString());
+        return this.users?.filter(w => w.currentRoomId == room.id.toString());
     }
 
     getInitials(str: string): string {

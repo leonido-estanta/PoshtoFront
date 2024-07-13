@@ -7,6 +7,7 @@ import { ISignal } from "../models/ISignal";
 import { SignalType } from "../models/SignalType";
 import { Room } from "../models/room";
 import {CookieService} from "ngx-cookie-service";
+import {HubService} from "./hub.service";
 
 @Injectable({
     providedIn: "root",
@@ -26,15 +27,10 @@ export class VoiceService {
     public currentIceServers: RTCIceServer[];
     public connected = false;
 
-    constructor(private cookieService: CookieService) {
+    constructor(private cookieService: CookieService, private hubService: HubService) {
         this.usersObservable.subscribe(users => this.users = users);
-
-        const authToken = this.cookieService.get('authToken');
-        this._hubConnection = new HubConnectionBuilder()
-            .withUrl("http://localhost:5284/voiceHub", {
-                accessTokenFactory: () => authToken
-            })
-            .build();
+        
+        this._hubConnection = this.hubService.initializeHubConnection('voiceHub');
         
         this._initializeConnection().then();
 
@@ -57,6 +53,7 @@ export class VoiceService {
         });
 
         this._hubConnection.on("updateRoomsData", async (rooms: Room[]) => {
+            console.log(rooms)
             this.roomsSub.next(rooms?.map(s => s['voiceRoom'])); //TODO: Refactor
         });
 
@@ -67,7 +64,7 @@ export class VoiceService {
 
     private async _initializeConnection() {
         try {
-            await this._hubConnection.start();
+            await this.hubService.waitForConnection(this._hubConnection);
             this.currentConnectionId = await this._hubConnection.invoke("GetConnectionId");
             this.connected = true;
             this.closeAllVideoCalls();
@@ -77,14 +74,8 @@ export class VoiceService {
         }
     }
 
-    private async waitForConnection() { // TODO: Duplicate
-        while (this._hubConnection.state !== "Connected") {
-            await new Promise(resolve => setTimeout(resolve, 100));
-        }
-    }
-
     async requestRoomsData() {
-        await this.waitForConnection();
+        await this.hubService.waitForConnection(this._hubConnection);
         return this._hubConnection.invoke("SendRoomsData", true);
     }
 
@@ -181,7 +172,7 @@ export class VoiceService {
     }
 
     private async sendSignal(message: ISignal, partnerClientId: string) {
-        await this.waitForConnection();
+        await this.hubService.waitForConnection(this._hubConnection);
         await this._hubConnection.invoke("SendSignal", JSON.stringify(message), partnerClientId);
     }
 
@@ -199,7 +190,7 @@ export class VoiceService {
         if (this.currentIceServers) return this.currentIceServers;
 
         try {
-            await this.waitForConnection();
+            await this.hubService.waitForConnection(this._hubConnection);
             return await this._hubConnection.invoke("GetIceServers");
         } catch (error) {
             console.error("GetIceServers error:", error);
@@ -213,7 +204,7 @@ export class VoiceService {
     }
 
     async joinRoom(userId: string, roomId: string) {
-        await this.waitForConnection();
+        await this.hubService.waitForConnection(this._hubConnection);
         if (!this.connected) {
             this.reset();
             return;
