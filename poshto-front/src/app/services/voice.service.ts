@@ -1,5 +1,5 @@
 ﻿import { Injectable } from "@angular/core";
-import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
+import { HubConnection } from "@microsoft/signalr";
 import { BehaviorSubject } from "rxjs";
 import { UserConnection } from "../models/user-connection.model";
 import { UserVoiceRoom } from "../models/userVoiceRoom";
@@ -82,6 +82,8 @@ export class VoiceService {
         const iceServers = await this.getIceServers();
         for (const user of users) {
             const connection = await this.getConnection(user.connectionId, iceServers, false);
+
+            connection.rtcConnection = connection.rtcConnection || new RTCPeerConnection({ iceServers });
             if (connection.user.id !== user.id) {
                 connection.user.id = user.id;
             }
@@ -179,7 +181,15 @@ export class VoiceService {
         if (this.currentMediaStream) return this.currentMediaStream;
 
         try {
-            return await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            const stream = await navigator.mediaDevices.getUserMedia({
+                //video: { facingMode: "user" },
+                audio: true
+            });
+
+            stream.getVideoTracks().forEach(track => track.enabled = false);
+
+            this.currentMediaStream = stream;
+            return stream;
         } catch (error) {
             console.error("Failed to get hardware access", error);
         }
@@ -225,30 +235,31 @@ export class VoiceService {
         if (!this.currentMediaStream) return;
 
         const videoTrack = this.currentMediaStream.getVideoTracks()[0];
-        if (videoTrack) {
-            if (videoTrack.enabled) {
-                videoTrack.stop();
-                this.currentMediaStream.removeTrack(videoTrack);
-            } else {
-                try {
-                    const newStream = await navigator.mediaDevices.getUserMedia({ video: true });
-                    const newVideoTrack = newStream.getVideoTracks()[0];
-                    this.currentMediaStream.addTrack(newVideoTrack);
-                    this._updateConnectionsStream();
-                } catch (error) {
-                    console.error('Error re-enabling video:', error);
-                }
-            }
+        const isVideoEnabled = videoTrack ? videoTrack.enabled : false;
+
+        if (isVideoEnabled) {
+            this.currentMediaStream.getVideoTracks().forEach(track => {
+                track.enabled = false;
+                track.stop();
+            });
         } else {
             try {
-                const newStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const newStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
                 const newVideoTrack = newStream.getVideoTracks()[0];
+
+                this.currentMediaStream.getVideoTracks().forEach(track => {
+                    this.currentMediaStream.removeTrack(track);
+                    track.stop();
+                });
+
                 this.currentMediaStream.addTrack(newVideoTrack);
-                this._updateConnectionsStream();
             } catch (error) {
                 console.error('Error enabling video:', error);
+                return;
             }
         }
+
+        this._updateConnectionsStream();
     }
 
     async toggleScreenShare() {
@@ -278,10 +289,17 @@ export class VoiceService {
 
     private _updateConnectionsStream() {
         Object.values(this._connections).forEach(connection => {
-            const sender = connection.rtcConnection.getSenders().find(s => s.track.kind === 'video');
-            if (sender) {
-                const newTrack = this.currentMediaStream.getVideoTracks()[0];
-                sender.replaceTrack(newTrack).then(r => {});
+            if (connection.rtcConnection) {
+                const videoTrack = this.currentMediaStream.getVideoTracks()[0];
+                const sender = connection.rtcConnection.getSenders().find(s => s.track && s.track.kind === 'video');
+
+                if (sender) {
+                    sender.replaceTrack(videoTrack).catch(error => {
+                        console.error('Error replacing video track:', error);
+                    });
+                } else if (videoTrack) {
+                    connection.rtcConnection.addTrack(videoTrack, this.currentMediaStream);
+                }
             }
         });
     }

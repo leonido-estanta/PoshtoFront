@@ -31,8 +31,7 @@ export class HubService {
             } catch (err) {
                 if (err.message.includes('Unauthorized')) {
                     authToken = await this.handleTokenRenewal();
-                    hubConnection = buildConnection();
-                    await hubConnection.start();
+                    window.location.reload();
                 } else {
                     console.error('Error while starting connection: ' + err);
                 }
