@@ -1,15 +1,11 @@
-﻿import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, NgZone, OnInit, ViewChild } from '@angular/core';
+﻿import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from "@angular/forms";
 import { NgClass, NgForOf } from "@angular/common";
 import { ChatService } from "../../services/chat.service";
 import { UserService } from "../../services/user.service";
-import {
-    CdkFixedSizeVirtualScroll,
-    CdkVirtualForOf,
-    CdkVirtualScrollViewport,
-    ScrollingModule
-} from "@angular/cdk/scrolling";
-import { ServerUser } from "../../models/userVoiceRoom";
+import { gsap } from "gsap";
+import { debounce } from 'lodash';
+import {ServerUser} from "../../models/userVoiceRoom";
 
 @Component({
     selector: 'messenger-component',
@@ -18,16 +14,13 @@ import { ServerUser } from "../../models/userVoiceRoom";
     imports: [
         FormsModule,
         NgForOf,
-        CdkVirtualScrollViewport,
-        CdkVirtualForOf,
-        NgClass,
-        CdkFixedSizeVirtualScroll,
-        ScrollingModule
+        NgClass
     ],
     standalone: true
 })
+export class MessengerComponent implements OnInit, AfterViewInit {
+    @ViewChild('chatMessagesInner') chatMessagesInner: ElementRef;
 
-export class MessengerComponent implements OnInit {
     constructor(private chatService: ChatService, private userService: UserService) {}
 
     messages = [];
@@ -48,8 +41,13 @@ export class MessengerComponent implements OnInit {
         this.chatService.hubConnection.on('ReceiveMessage', (data) => {
             if (data) {
                 this.messages = [...this.messages, data];
+                this.scrollToBottom();
             }
         });
+    }
+
+    ngAfterViewInit() {
+        this.scrollToBottom();
     }
 
     getMessageUser(message) {
@@ -65,6 +63,9 @@ export class MessengerComponent implements OnInit {
                 this.messages = [...data.reverse(), ...this.messages];
                 this.loadingMessages = false;
                 this.pageLoaded += 1;
+                if (initialLoad) {
+                    this.scrollToBottom();
+                }
             });
     }
 
@@ -74,6 +75,7 @@ export class MessengerComponent implements OnInit {
         if (this.inputMessage) {
             this.chatService.sendMessage(this.inputMessage).then(_ => {
                 this.inputMessage = '';
+                this.scrollToBottom();
             });
         }
     }
@@ -84,7 +86,14 @@ export class MessengerComponent implements OnInit {
         textarea.style.height = textarea.scrollHeight + 'px';
     }
 
-    onScroll() {
-
+    scrollToBottom() {
+        gsap.to(this.chatMessagesInner.nativeElement, { scrollTop: this.chatMessagesInner.nativeElement.scrollHeight, duration: 0.5 });
     }
+
+    onScroll = debounce((event) => {
+        const element = event.target;
+        if ((element.scrollHeight - element.clientHeight + element.scrollTop) < 200 && !this.loadingMessages) {
+            this.loadMessages();
+        }
+    }, 100);
 }

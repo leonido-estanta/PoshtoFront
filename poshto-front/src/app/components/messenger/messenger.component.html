@@ -1,7 +1,7 @@
 ﻿<div class="chat-container">
-    <div class="chat-messages">
-        <cdk-virtual-scroll-viewport itemSize="50" class="chat-messages" (scrolledIndexChange)="onScroll()">
-            <div *cdkVirtualFor="let message of messages; let i = index" class="message">
+    <div class="chat-messages" (scroll)="onScroll($event)">
+        <div class="chat-messages-inner" #chatMessagesInner>
+            <div *ngFor="let message of messages; let i = index" class="message">
                 <img [src]="getMessageUser(message)?.avatarUrl" alt="User Avatar" class="message-avatar">
                 <div class="message-content">
                     <div class="message-header">
@@ -11,7 +11,7 @@
                     <div class="message-text" [innerHTML]="message.text"></div>
                 </div>
             </div>
-        </cdk-virtual-scroll-viewport>
+        </div>
     </div>
     <div class="chat-input-container">
         <div class="chat-input">
