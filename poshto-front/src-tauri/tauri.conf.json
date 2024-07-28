@@ -3,7 +3,7 @@
     "beforeDevCommand": "npm run start",
     "beforeBuildCommand": "npm run build",
     "devPath": "http://localhost:1420",
-    "distDir": "../dist/poshto-front/browser"
+    "distDir": "../dist"
   },
   "package": {
     "productName": "poshto-front",
@@ -30,7 +30,7 @@
     "bundle": {
       "active": true,
       "targets": "all",
-      "identifier": "com.tauri.dev",
+      "identifier": "poshto.front",
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",

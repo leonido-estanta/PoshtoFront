@@ -4,6 +4,7 @@ import {HubConnection} from "@microsoft/signalr";
 import {HubService} from "./hub.service";
 import {AuthService} from "./auth.service";
 import {CookieService} from "ngx-cookie-service";
+import {environment} from "../../environments/environment";
 
 @Injectable({
     providedIn: 'root',
@@ -11,7 +12,7 @@ import {CookieService} from "ngx-cookie-service";
 export class ChatService {
     constructor(private http: HttpClient, private authService: AuthService, private hubService: HubService, private cookieService: CookieService) {}
     
-    private baseUrl = 'http://localhost:5284';
+    private baseUrl = environment.apiUrl;
     public hubConnection: HubConnection;
 
     getMessages(messagesCount, pageSize) {

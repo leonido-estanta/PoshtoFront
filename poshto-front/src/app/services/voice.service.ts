@@ -26,6 +26,7 @@ export class VoiceService {
     public currentMediaStream: MediaStream;
     public currentIceServers: RTCIceServer[];
     public connected = false;
+    private _getUserMediaLock: Promise<MediaStream> = null;
 
     constructor(private cookieService: CookieService, private hubService: HubService) {
         this.usersObservable.subscribe(users => this.users = users);
@@ -179,20 +180,28 @@ export class VoiceService {
 
     private async getUserMediaInternal(): Promise<MediaStream> {
         if (this.currentMediaStream) return this.currentMediaStream;
+        if (this._getUserMediaLock) return this._getUserMediaLock;
 
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({
-                //video: { facingMode: "user" },
-                audio: true
-            });
+        this._getUserMediaLock = new Promise(async (resolve, reject) => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: "user" },
+                    audio: true
+                });
 
-            stream.getVideoTracks().forEach(track => track.enabled = false);
+                stream.getVideoTracks().forEach(track => track.enabled = false);
 
-            this.currentMediaStream = stream;
-            return stream;
-        } catch (error) {
-            console.error("Failed to get hardware access", error);
-        }
+                this.currentMediaStream = stream;
+                resolve(stream);
+            } catch (error) {
+                console.error("Failed to get hardware access", error);
+                reject(error);
+            } finally {
+                this._getUserMediaLock = null;
+            }
+        });
+
+        return this._getUserMediaLock;
     }
 
     private async getIceServers(): Promise<RTCIceServer[]> {

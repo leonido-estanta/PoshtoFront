@@ -2,6 +2,7 @@
 import {HubConnection, HubConnectionBuilder} from "@microsoft/signalr";
 import {CookieService} from "ngx-cookie-service";
 import {AuthService} from "./auth.service";
+import {environment} from "../../environments/environment";
 
 @Injectable({
     providedIn: 'root',
@@ -20,7 +21,7 @@ export class HubService {
         }
 
         const buildConnection = () => {
-            return new HubConnectionBuilder().withUrl("http://localhost:5284/" + hubName, {
+            return new HubConnectionBuilder().withUrl(environment.apiUrl + "/" + hubName, {
                 accessTokenFactory: () => authToken
             }).build();
         }

@@ -2,12 +2,13 @@
 import { Injectable } from '@angular/core';
 import {Observable} from "rxjs";
 import {CookieService} from "ngx-cookie-service";
+import {environment} from "../../environments/environment";
 
 @Injectable({
     providedIn: 'root',
 })
 export class AuthService {
-    private baseUrl = 'http://localhost:5284';
+    private baseUrl = environment.apiUrl;
 
     constructor(private http: HttpClient, private cookieService: CookieService) {}
 
@@ -17,7 +18,7 @@ export class AuthService {
             email: email,
             password: password
         }
-        
+
         return this.http.post(url, model);
     }
 
